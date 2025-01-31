@@ -21,6 +21,3 @@ class WhatsAppService:
             return e
 
 
-if __name__ == "__main__":
-    whatsapp_service = WhatsAppService("AC896e93df5319d6a7d8a41347c8f2ff41","ee3f404d96d7c893074fb71649c78673")
-    whatsapp_service.sand_message("whatsapp:+919601340723","Hello from Python")
