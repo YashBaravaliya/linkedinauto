@@ -1,0 +1,12 @@
+flask
+flask_apscheduler
+python-dotenv
+google
+requests
+langchain_mistralai
+langchain_core
+langchain
+google-auth-oauthlib
+google-auth-httplib2 
+google-api-python-client
+twilio

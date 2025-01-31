@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Indian Festivals</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        .festival-image {
+            width: 100%;
+            height: 300px;
+            object-fit: contain;
+            background-color: #f8f8f8;
+        }
+        .image-container {
+            position: relative;
+            width: 100%;
+            height: 300px;
+            background-color: #f8f8f8;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto px-4 py-8">
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold mb-4">Upcoming Indian Festivals</h1>
+            
+            <!-- Search Form -->
+            <form method="GET" action="/" class="flex gap-2">
+                <input type="text" 
+                       name="search" 
+                       value="{{ search_query }}"
+                       placeholder="Search festivals..."
+                       class="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <button type="submit" 
+                        class="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    Search
+                </button>
+                {% if search_query %}
+                <a href="/" 
+                   class="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500">
+                    Clear
+                </a>
+                {% endif %}
+            </form>
+        </div>
+        
+        {% if not festivals %}
+        <div class="text-center py-8">
+            <p class="text-gray-600 text-lg">No festivals found.</p>
+        </div>
+        {% endif %}
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for festival in festivals %}
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                <div class="p-4">
+                    <h2 class="text-xl font-semibold mb-2">{{ festival.title }}</h2>
+                    <p class="text-gray-600 mb-4">{{ festival.start_date }}</p>
+                </div>
+                
+                <div class="image-container">
+                    {% if festival.image_path %}
+                        <img src="{{ festival.image_path }}" 
+                             alt="{{ festival.title }}" 
+                             class="festival-image">
+                    {% else %}
+                        <div class="w-full h-full flex items-center justify-center">
+                            <p class="text-gray-500">No image uploaded</p>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="p-4 bg-gray-50">
+                    <form onsubmit="uploadImage(event, '{{ festival.title }}')"
+                          id="form-{{ festival.title }}"
+                          class="space-y-4">
+                        <div class="flex flex-col space-y-2">
+                            <input type="file" 
+                                   name="image" 
+                                   accept="image/*"
+                                   class="block w-full text-sm text-gray-500
+                                          file:mr-4 file:py-2 file:px-4
+                                          file:rounded-full file:border-0
+                                          file:text-sm file:font-semibold
+                                          file:bg-violet-50 file:text-violet-700
+                                          hover:file:bg-violet-100"
+                                   required>
+                            <button type="submit" 
+                                    class="w-full px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                Upload Image
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script>
+        async function uploadImage(event, festivalName) {
+            event.preventDefault();
+            const form = event.target;
+            const formData = new FormData(form);
+            const submitButton = form.querySelector('button[type="submit"]');
+            
+            try {
+                submitButton.disabled = true;
+                submitButton.textContent = 'Uploading...';
+                
+                const response = await fetch(`/upload/${encodeURIComponent(festivalName)}`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    window.location.reload();
+                } else {
+                    alert(data.error || 'Upload failed');
+                }
+            } catch (error) {
+                console.error('Upload error:', error);
+                alert('Upload failed');
+            } finally {
+                submitButton.disabled = false;
+                submitButton.textContent = 'Upload Image';
+            }
+        }
+    </script>
+</body>
+</html>
